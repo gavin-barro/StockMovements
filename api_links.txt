@@ -1,0 +1,3 @@
+Twillio: https://www.twilio.com/en-us
+News: https://newsapi.org/
+Stock Market: https://www.alphavantage.co/
