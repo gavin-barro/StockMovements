@@ -13,12 +13,35 @@ STOCK_API_KEY = os.getenv("STOCK_API_KEY")
 STOCK_ENDPOINT="https://www.alphavantage.co/query"
 
 def get_stock() -> tuple[str, str, float]:
-    stock_symbol = input("Enter the Stock name (ex. TSLA): ")
-    company_name = input("Enter the company name (ex. Tesla): ")
-    percent_change = input("What percent change would you like to get notified at (default. 5%): ")
-    
-    
-    return stock_symbol, company_name, float(percent_change)
+    # Default values
+    STOCK = "TSLA"
+    COMPANY_NAME = "Tesla"
+    DEFAULT_PERCENT = 5.0
+
+    # Get stock symbol
+    stock_symbol = input("Enter the Stock name (ex. TSLA): ").strip().upper()
+    if not stock_symbol or not stock_symbol.isalnum():
+        print(f"Invalid stock symbol. Using default: {STOCK}")
+        stock_symbol = STOCK
+
+    # Get company name
+    company_name = input("Enter the company name (ex. Tesla): ").strip()
+    if not company_name:
+        print(f"Invalid company name. Using default: {COMPANY_NAME}")
+        company_name = COMPANY_NAME
+
+    # Get percent change
+    percent_change_input = input("What percent change would you like to get notified at (default 5%): ").strip()
+    try:
+        percent_change = float(percent_change_input)
+        if percent_change <= 0:
+            print(f"Percent change must be positive. Using default: {DEFAULT_PERCENT}%")
+            percent_change = DEFAULT_PERCENT
+    except ValueError:
+        print(f"Invalid percent change. Using default: {DEFAULT_PERCENT}%")
+        percent_change = DEFAULT_PERCENT
+
+    return stock_symbol, company_name, percent_change
 
 def check_price_change(yesterdays_price: float, todays_price: float) -> float:
     return ((todays_price - yesterdays_price) / yesterdays_price) * 100
