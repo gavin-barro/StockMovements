@@ -51,18 +51,25 @@ def get_valid_dates() -> tuple[str, str]:
 def check_price_change(yesterdays_price: float, todays_price: float) -> float:
     return ((todays_price - yesterdays_price) / yesterdays_price) * 100
 
-def get_news(stock_name: str, from_date: str, to_date: str):
+def get_news(stock_name: str, today_date: str) -> list[str]:
+    three_days_from_today = '2025-05-28'
+    
     news_params = {
         'q': stock_name,
         'searchIn': 'title',
         'apiKey': NEWS_API_KEY,
-        'from': from_date,
-        'to': to_date
+        'from': three_days_from_today,
+        'to': today_date
     }
     response = requests.get(NEWS_ENDPOINT, params=news_params)
     response.raise_for_status()
-    data = response.json()
-    print(data)
+    news_data = response.json()
+
+    article1 = news_data["articles"][0]
+    # Key info
+    # print(f"Name : {name}")
+    
+    return ["", "", ""]
     
 
 def main() -> None:
@@ -77,6 +84,7 @@ def main() -> None:
     response = requests.get(STOCK_ENDPOINT ,params=stock_params)
     response.raise_for_status()
     data = response.json()
+    print(data)
     time_series_data = data['Time Series (Daily)']
 
     # todays_date, yesterdays_date = get_valid_dates()
@@ -90,7 +98,7 @@ def main() -> None:
     # Checking the price threshold
     # if price_change > percent_change or price_change < -percent_change:
         # Get the first 3 news pieces for the COMPANY_NAME. 
-    get_news(stock_symbol, yesterdays_date, todays_date)
+    get_news(stock_symbol, todays_date)
         
         # Send a seperate message with the percentage change and each article's title and description to your phone number. 
     
