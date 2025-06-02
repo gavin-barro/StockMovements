@@ -2,8 +2,6 @@ import os
 import requests
 from datetime import datetime
 from dotenv import load_dotenv
-from typing import Any
-from newsapi import NewsApiClient
 
 STOCK = "TSLA"
 COMPANY_NAME = "Tesla"
@@ -18,21 +16,21 @@ NEWS_ENDPOINT="https://newsapi.org/v2/everything"
 
 def get_stock() -> tuple[str, str, float]:
     # Default values
-    STOCK = "TSLA"
-    COMPANY_NAME = "Tesla"
+    DEFAULT_STOCK = "TSLA"
+    DEFAULT_COMPANY_NAME = "Tesla"
     DEFAULT_PERCENT = 5.0
 
     # Get stock symbol
     stock_symbol = input("Enter the Stock name (ex. TSLA): ").strip().upper()
     if not stock_symbol or not stock_symbol.isalnum():
-        print(f"Invalid stock symbol. Using default: {STOCK}")
-        stock_symbol = STOCK
+        print(f"Invalid stock symbol. Using default: {DEFAULT_STOCK}")
+        stock_symbol = DEFAULT_STOCK
 
     # Get company name
     company_name = input("Enter the company name (ex. Tesla): ").strip()
     if not company_name:
-        print(f"Invalid company name. Using default: {COMPANY_NAME}")
-        company_name = COMPANY_NAME
+        print(f"Invalid company name. Using default: {DEFAULT_COMPANY_NAME}")
+        company_name = DEFAULT_COMPANY_NAME
 
     # Get percent change
     percent_change_input = input("What percent change would you like to get notified at (default 5%): ").strip()
@@ -47,18 +45,19 @@ def get_stock() -> tuple[str, str, float]:
 
     return stock_symbol, company_name, percent_change
 
-def get_dates():
-    pass
+def get_valid_dates() -> tuple[str, str]:
+    return "", ""
 
 def check_price_change(yesterdays_price: float, todays_price: float) -> float:
     return ((todays_price - yesterdays_price) / yesterdays_price) * 100
 
 def get_news(stock_name: str, from_date: str, to_date: str):
-    # newsapi = NewsApiClient(api_key=NEWS_API_KEY)
     news_params = {
         'q': stock_name,
         'searchIn': 'title',
         'apiKey': NEWS_API_KEY,
+        'from': from_date,
+        'to': to_date
     }
     response = requests.get(NEWS_ENDPOINT, params=news_params)
     response.raise_for_status()
@@ -80,6 +79,7 @@ def main() -> None:
     data = response.json()
     time_series_data = data['Time Series (Daily)']
 
+    # todays_date, yesterdays_date = get_valid_dates()
     todays_date = datetime.now().strftime('%Y-%m-%d')
     yesterdays_date = '2025-05-30'
     
