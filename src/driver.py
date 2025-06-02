@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from typing import Any
 
 STOCK = "TSLA"
-COMPANY_NAME = "Tesla Inc"
+COMPANY_NAME = "Tesla"
 
 load_dotenv()
 
@@ -14,7 +14,7 @@ STOCK_ENDPOINT="https://www.alphavantage.co/query"
 
 def get_stock() -> tuple[str, str, float]:
     stock_symbol = input("Enter the Stock name (ex. TSLA): ")
-    company_name = input("Enter the company name (ex. Tesla Inc): ")
+    company_name = input("Enter the company name (ex. Tesla): ")
     percent_change = input("What percent change would you like to get notified at (default. 5%): ")
     
     
