@@ -3,6 +3,7 @@ import requests
 from datetime import datetime
 from dotenv import load_dotenv
 from typing import Any
+from newsapi import NewsApiClient
 
 STOCK = "TSLA"
 COMPANY_NAME = "Tesla"
@@ -11,6 +12,9 @@ load_dotenv()
 
 STOCK_API_KEY = os.getenv("STOCK_API_KEY")
 STOCK_ENDPOINT="https://www.alphavantage.co/query"
+
+NEWS_API_KEY = os.getenv("NEWS_API_KEY")
+NEWS_ENDPOINT="https://newsapi.org/v2/everything"
 
 def get_stock() -> tuple[str, str, float]:
     # Default values
@@ -43,8 +47,23 @@ def get_stock() -> tuple[str, str, float]:
 
     return stock_symbol, company_name, percent_change
 
+def get_dates():
+    pass
+
 def check_price_change(yesterdays_price: float, todays_price: float) -> float:
     return ((todays_price - yesterdays_price) / yesterdays_price) * 100
+
+def get_news(stock_name: str, from_date: str, to_date: str):
+    # newsapi = NewsApiClient(api_key=NEWS_API_KEY)
+    news_params = {
+        'q': stock_name,
+        'searchIn': 'title',
+        'apiKey': NEWS_API_KEY,
+    }
+    response = requests.get(NEWS_ENDPOINT, params=news_params)
+    response.raise_for_status()
+    data = response.json()
+    print(data)
     
 
 def main() -> None:
@@ -69,9 +88,9 @@ def main() -> None:
     price_change = check_price_change(yesterdays_close_price, todays_close_price)
     
     # Checking the price threshold
-    if price_change > percent_change or price_change < -percent_change:
+    # if price_change > percent_change or price_change < -percent_change:
         # Get the first 3 news pieces for the COMPANY_NAME. 
-        print("Get news.")
+    get_news(stock_symbol, yesterdays_date, todays_date)
         
         # Send a seperate message with the percentage change and each article's title and description to your phone number. 
     
