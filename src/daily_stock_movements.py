@@ -14,7 +14,7 @@ STOCK_ENDPOINT="https://www.alphavantage.co/query"
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 NEWS_ENDPOINT="https://newsapi.org/v2/everything"
 
-def get_stock() -> tuple[str, str, float]:
+def get_info() -> tuple[str, str, float]:
     # Default values
     DEFAULT_STOCK = "TSLA"
     DEFAULT_COMPANY_NAME = "Tesla"
@@ -67,17 +67,26 @@ def get_valid_dates() -> tuple[str, str]:
     
     return todays_date, yesterdays_date
 
+def get_three_days_past(todays_date: str) -> str:
+    # Parse todays_date from YYYY-MM-DD string to datetime.date
+    date_obj = datetime.strptime(todays_date, '%Y-%m-%d').date()
+    # Subtract 3 days
+    three_days_past = date_obj - timedelta(days=3)
+    # Format as YYYY-MM-DD
+    three_days_past_today = three_days_past.strftime('%Y-%m-%d')
+    return three_days_past_today
+
 def check_price_change(yesterdays_price: float, todays_price: float) -> float:
     return ((todays_price - yesterdays_price) / yesterdays_price) * 100
 
 def get_news(stock_name: str, today_date: str) -> list[str]:
-    three_days_from_today = '2025-05-28'
+    three_days_past = '2025-05-28'  #get_three_days_past()
     
     news_params = {
         'q': stock_name,
         'searchIn': 'title',
         'apiKey': NEWS_API_KEY,
-        'from': three_days_from_today,
+        'from': three_days_past,
         'to': today_date
     }
     response = requests.get(NEWS_ENDPOINT, params=news_params)
@@ -107,8 +116,6 @@ def main() -> None:
     time_series_data = data['Time Series (Daily)']
 
     todays_date, yesterdays_date = get_valid_dates()
-    todays_date = datetime.now().strftime('%Y-%m-%d')
-    yesterdays_date = '2025-05-30'
     
     todays_close_price = round(float(time_series_data[todays_date]['4. close']), 2)
     yesterdays_close_price = round(float(time_series_data[yesterdays_date]['4. close']), 2)
