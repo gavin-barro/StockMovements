@@ -16,6 +16,11 @@ STOCK_ENDPOINT="https://www.alphavantage.co/query"
 NEWS_API_KEY = os.getenv("NEWS_API_KEY")
 NEWS_ENDPOINT="https://newsapi.org/v2/everything"
 
+TEXT_ACCOUNT_SID = os.getenv("TEXT_ACCOUNT_SID")
+TEXT_API_KEY = os.getenv("TEXT_API_KEY")
+TO_NUMBER = os.getenv("TO_NUMBER", "")
+FROM_NUMBER = os.getenv("FROM_NUMBER", "")
+
 def get_info() -> tuple[str, str, float]:
     # Default values
     DEFAULT_STOCK = "TSLA"
@@ -132,14 +137,26 @@ def main() -> None:
     second_most_recent_closing_price = round(float(time_series_data[yesterdays_date]['4. close']), 2)
     price_change = check_price_change(second_most_recent_closing_price, most_recent_closing_price)
     
+    emoji = ""
+    if price_change > 0:
+        emoji = "📈"
+    elif price_change < 0:
+        emoji = "📉"
+    
     # Checking the price threshold
     if True: #price_change > percent_change or price_change < -percent_change:
         # Get the first 3 news pieces for the COMPANY_NAME. 
         article_info = get_news(stock_symbol)
             
-        # Send a seperate message with the percentage change and each article's title and description to your phone number. 
+        # Send a seperate message with the percentage change and each article's title and description to the phone number
+        client = Client(TEXT_ACCOUNT_SID, TEXT_API_KEY)
         for i in range(3):
-            message = f"Headline: {article_info[i]['title']}\n Brief: {article_info[i]['description']}"  
+            text = f"{company_name} ({stock_symbol}): {percent_change}% {emoji}\nHeadline: {article_info[i]['title']}\n Brief: {article_info[i]['description']}"  
+            message = client.messages.create(
+                body=text,
+                to=TO_NUMBER,
+                from_=FROM_NUMBER
+            )
     
     
 if __name__ == "__main__":
