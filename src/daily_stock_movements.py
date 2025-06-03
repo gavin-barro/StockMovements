@@ -67,37 +67,41 @@ def get_valid_dates() -> tuple[str, str]:
     
     return todays_date, yesterdays_date
 
-def get_three_days_past(todays_date: str) -> str:
-    # Parse todays_date from YYYY-MM-DD string to datetime.date
-    date_obj = datetime.strptime(todays_date, '%Y-%m-%d').date()
-    # Subtract 3 days
-    three_days_past = date_obj - timedelta(days=3)
-    # Format as YYYY-MM-DD
-    three_days_past_today = three_days_past.strftime('%Y-%m-%d')
-    return three_days_past_today
-
 def check_price_change(yesterdays_price: float, todays_price: float) -> float:
     return ((todays_price - yesterdays_price) / yesterdays_price) * 100
 
-def get_news(stock_name: str, today_date: str) -> list[str]:
-    three_days_past = '2025-05-28'  #get_three_days_past()
-    
+def get_news(stock_name: str) -> list[dict]:
     news_params = {
         'q': stock_name,
         'searchIn': 'title',
         'apiKey': NEWS_API_KEY,
-        'from': three_days_past,
-        'to': today_date
     }
     response = requests.get(NEWS_ENDPOINT, params=news_params)
     response.raise_for_status()
     news_data = response.json()
 
-    article1 = news_data["articles"][0]
-    # Key info
-    # print(f"Name : {name}")
+    articles = [
+        {
+          'name': article['source']['name'],
+          'author': article['author'],
+          'title': article['title'],
+          'description': article['description'],
+          'url': article['url'],
+        }
+        
+        for article in news_data['articles'][:3]
+    ]
     
-    return ["", "", ""]
+    # article1 = news_data["articles"][0]
+
+    # # Key info
+    # name = article1['source']['name']
+    # author = article1['author']
+    # title = article1['title']
+    # description = article1['description']
+    # url = article1['url']
+    
+    return articles
     
 
 def main() -> None:
@@ -112,19 +116,22 @@ def main() -> None:
     response = requests.get(STOCK_ENDPOINT ,params=stock_params)
     response.raise_for_status()
     data = response.json()
-    print(data)
+    # print(data)
     time_series_data = data['Time Series (Daily)']
 
     todays_date, yesterdays_date = get_valid_dates()
+    todays_date = "2025-06-02"
+    yesterdays_date = "2025-05-30"
     
-    todays_close_price = round(float(time_series_data[todays_date]['4. close']), 2)
-    yesterdays_close_price = round(float(time_series_data[yesterdays_date]['4. close']), 2)
-    price_change = check_price_change(yesterdays_close_price, todays_close_price)
+    most_recent_closing_price = round(float(time_series_data[todays_date]['4. close']), 2)
+    second_most_recent_closing_price = round(float(time_series_data[yesterdays_date]['4. close']), 2)
+    price_change = check_price_change(second_most_recent_closing_price, most_recent_closing_price)
     
     # Checking the price threshold
     # if price_change > percent_change or price_change < -percent_change:
         # Get the first 3 news pieces for the COMPANY_NAME. 
-    get_news(stock_symbol, todays_date)
+    info = get_news(stock_symbol)
+    print(info)
         
         # Send a seperate message with the percentage change and each article's title and description to your phone number. 
     
