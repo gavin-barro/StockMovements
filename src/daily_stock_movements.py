@@ -3,6 +3,7 @@ import pytz
 import requests
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
+from twilio.rest import Client
 
 STOCK = "TSLA"
 COMPANY_NAME = "Tesla"
@@ -132,12 +133,13 @@ def main() -> None:
     price_change = check_price_change(second_most_recent_closing_price, most_recent_closing_price)
     
     # Checking the price threshold
-    # if price_change > percent_change or price_change < -percent_change:
+    if True: #price_change > percent_change or price_change < -percent_change:
         # Get the first 3 news pieces for the COMPANY_NAME. 
-    info = get_news(stock_symbol)
-    print(info)
-        
+        article_info = get_news(stock_symbol)
+            
         # Send a seperate message with the percentage change and each article's title and description to your phone number. 
+        for i in range(3):
+            message = f"Headline: {article_info[i]['title']}\n Brief: {article_info[i]['description']}"  
     
     
 if __name__ == "__main__":
