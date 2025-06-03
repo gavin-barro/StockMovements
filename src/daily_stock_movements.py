@@ -1,6 +1,6 @@
 import os
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 
 STOCK = "TSLA"
@@ -46,7 +46,26 @@ def get_stock() -> tuple[str, str, float]:
     return stock_symbol, company_name, percent_change
 
 def get_valid_dates() -> tuple[str, str]:
-    return "", ""
+    # Get today's date
+    today = datetime.now().date()
+    
+    # Check if today is a weekday (Monday=0, Friday=4)
+    if today.weekday() >= 5:  # Saturday (5) or Sunday (6)
+        # Adjust to previous Friday
+        days_to_subtract = today.weekday() - 4  # 5 -> 1, 6 -> 2
+        today = today - timedelta(days=days_to_subtract)
+    
+    # Get yesterday (previous weekday)
+    if today.weekday() == 0:  # Today is Monday
+        yesterday = today - timedelta(days=3)  # Previous Friday
+    else:
+        yesterday = today - timedelta(days=1)  # Previous weekday
+    
+    # Format dates as YYYY-MM-DD
+    todays_date = today.strftime('%Y-%m-%d')
+    yesterdays_date = yesterday.strftime('%Y-%m-%d')
+    
+    return todays_date, yesterdays_date
 
 def check_price_change(yesterdays_price: float, todays_price: float) -> float:
     return ((todays_price - yesterdays_price) / yesterdays_price) * 100
@@ -87,7 +106,7 @@ def main() -> None:
     print(data)
     time_series_data = data['Time Series (Daily)']
 
-    # todays_date, yesterdays_date = get_valid_dates()
+    todays_date, yesterdays_date = get_valid_dates()
     todays_date = datetime.now().strftime('%Y-%m-%d')
     yesterdays_date = '2025-05-30'
     
