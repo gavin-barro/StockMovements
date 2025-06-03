@@ -1,4 +1,5 @@
 import os
+import pytz
 import requests
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
@@ -79,6 +80,7 @@ def get_news(stock_name: str) -> list[dict]:
     response = requests.get(NEWS_ENDPOINT, params=news_params)
     response.raise_for_status()
     news_data = response.json()
+    # print(news_data)
 
     articles = [
         {
@@ -87,6 +89,8 @@ def get_news(stock_name: str) -> list[dict]:
           'title': article['title'],
           'description': article['description'],
           'url': article['url'],
+          'date': datetime.fromisoformat(article['publishedAt'].replace('Z', '+00:00')) \
+            .astimezone(pytz.timezone('America/New_York')).strftime('%Y-%m-%d %I:%M:%S %p %Z'),
         }
         
         for article in news_data['articles'][:3]
