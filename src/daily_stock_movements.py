@@ -5,9 +5,6 @@ from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from twilio.rest import Client
 
-STOCK = "TSLA"
-COMPANY_NAME = "Tesla"
-
 load_dotenv()
 
 STOCK_API_KEY = os.getenv("STOCK_API_KEY")
@@ -102,21 +99,12 @@ def get_news(stock_name: str) -> list[dict]:
         for article in news_data['articles'][:3]
     ]
     
-    # article1 = news_data["articles"][0]
-
-    # # Key info
-    # name = article1['source']['name']
-    # author = article1['author']
-    # title = article1['title']
-    # description = article1['description']
-    # url = article1['url']
-    
     return articles
     
 
 def main() -> None:
-    # When STOCK price increase/decreases by 5% between yesterday and the day before yesterday then get news.
-    stock_symbol, company_name , percent_change = STOCK, COMPANY_NAME, 5   #get_info()
+    # When STOCK price increase/decreases by X% between yesterday and the day before yesterday then get news
+    stock_symbol, company_name , percent_change = get_info()
     stock_params = {
         'function': 'TIME_SERIES_DAILY',
         'symbol':  stock_symbol,
@@ -144,7 +132,7 @@ def main() -> None:
         emoji = "📉"
     
     # Checking the price threshold
-    if True: #price_change > percent_change or price_change < -percent_change:
+    if price_change > percent_change or price_change < -percent_change:
         # Get the first 3 news pieces for the COMPANY_NAME. 
         article_info = get_news(stock_symbol)
             
